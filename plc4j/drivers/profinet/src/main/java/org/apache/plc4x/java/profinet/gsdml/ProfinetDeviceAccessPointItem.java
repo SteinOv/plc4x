@@ -22,12 +22,19 @@ package org.apache.plc4x.java.profinet.gsdml;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.plc4x.java.profinet.readwrite.PnIoCm_Block_ExpectedSubmoduleReq;
+import org.apache.plc4x.java.profinet.readwrite.PnIoCm_IoCs;
+import org.apache.plc4x.java.profinet.readwrite.PnIoCm_IoDataObject;
+import org.apache.plc4x.java.profinet.readwrite.PnIoCm_Submodule_NoInputNoOutputData;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonRootName("DeviceAccessPointItem")
-public class ProfinetDeviceAccessPointItem {
+public class ProfinetDeviceAccessPointItem extends ProfinetModule {
 
     @JacksonXmlProperty(isAttribute=true, localName="ID")
     private String id;
@@ -174,5 +181,80 @@ public class ProfinetDeviceAccessPointItem {
 
     public ProfinetGraphics getGraphics() {
         return graphics;
+    }
+
+    @Override
+    public Collection<PnIoCm_IoDataObject> getInputIoDataApiBlocks(Integer startingOffset) {
+        List<PnIoCm_IoDataObject> inputIoDataApiBlocks = new ArrayList<>();
+        for (ProfinetVirtualSubmoduleItem virtualItem : this.getVirtualSubmoduleList()) {
+            Integer identNumber = Integer.decode(virtualItem.getSubmoduleIdentNumber());
+            inputIoDataApiBlocks.add(new PnIoCm_IoDataObject(
+                0,
+                identNumber,
+                startingOffset));
+            startingOffset += 1;
+        }
+        for (ProfinetInterfaceSubmoduleItem interfaceItem : this.getSystemDefinedSubmoduleList().getInterfaceSubmodules()) {
+            Integer identNumber = Integer.decode(interfaceItem.getSubmoduleIdentNumber());
+            inputIoDataApiBlocks.add(new PnIoCm_IoDataObject(
+                0,
+                identNumber,
+                startingOffset));
+            startingOffset += 1;
+        }
+        for (ProfinetPortSubmoduleItem portItem : this.getSystemDefinedSubmoduleList().getPortSubmodules()) {
+            Integer identNumber = Integer.decode(portItem.getSubmoduleIdentNumber());
+            inputIoDataApiBlocks.add(new PnIoCm_IoDataObject(
+                0,
+                identNumber,
+                startingOffset));
+            startingOffset += 1;
+        }
+        return inputIoDataApiBlocks;
+    }
+
+    @Override
+    public Collection<PnIoCm_IoCs> getOutputIoCsApiBlocks(Integer startingOffset) {
+        List<PnIoCm_IoCs> outputIoCsApiBlocks = new ArrayList<>();
+        for (ProfinetVirtualSubmoduleItem virtualItem : this.getVirtualSubmoduleList()) {
+            Integer identNumber = Integer.decode(virtualItem.getSubmoduleIdentNumber());
+            outputIoCsApiBlocks.add(new PnIoCm_IoCs(
+                0,
+                identNumber,
+                startingOffset));
+            startingOffset += 1;
+        }
+        for (ProfinetInterfaceSubmoduleItem interfaceItem : this.getSystemDefinedSubmoduleList().getInterfaceSubmodules()) {
+            Integer identNumber = Integer.decode(interfaceItem.getSubmoduleIdentNumber());
+            outputIoCsApiBlocks.add(new PnIoCm_IoCs(
+                0,
+                identNumber,
+                startingOffset));
+            startingOffset += 1;
+        }
+        for (ProfinetPortSubmoduleItem portItem : this.getSystemDefinedSubmoduleList().getPortSubmodules()) {
+            Integer identNumber = Integer.decode(portItem.getSubmoduleIdentNumber());
+            outputIoCsApiBlocks.add(new PnIoCm_IoCs(
+                0,
+                identNumber,
+                startingOffset));
+            startingOffset += 1;
+        }
+        return outputIoCsApiBlocks;
+    }
+
+    @Override
+    public Collection<PnIoCm_Block_ExpectedSubmoduleReq> getExpectedSubmoduleReq() {
+        throw new NotImplementedException("Not yet Implemented");
+    }
+
+    @Override
+    public Collection<PnIoCm_IoCs> getInputIoCsApiBlocks() {
+
+    }
+
+    @Override
+    public Collection<PnIoCm_IoDataObject> getOutputIoDataApiBlocks() {
+        throw new NotImplementedException("Not yet Implemented");
     }
 }

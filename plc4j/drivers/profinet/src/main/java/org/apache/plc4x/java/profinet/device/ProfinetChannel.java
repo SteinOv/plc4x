@@ -42,6 +42,7 @@ public class ProfinetChannel {
     private ProfinetPlcDiscoverer discoverer = null;
     private ProfinetConfiguration configuration = null;
     private Map<MacAddress, PcapHandle> openHandles;
+    private LinkedHashMap<String, ProfinetDevice> configuredDevices = new LinkedHashMap<>();
 
     public ProfinetChannel(List<PcapNetworkInterface> devs) {
         this.openHandles = getInterfaceHandles(devs);
@@ -143,8 +144,8 @@ public class ProfinetChannel {
                                 }
                             } else if (payload instanceof Ethernet_FramePayload_IPv4) {
                                 String macAddress = Hex.encodeHexString(ethernetFrame.getSource().getAddress()).toUpperCase();
-                                if (configuration != null && configuration.getConfiguredDevices() != null) {
-                                    ProfinetDevice device = configuration.getConfiguredDevices().get(macAddress);
+                                if (configuration != null && this.configuredDevices != null) {
+                                    ProfinetDevice device = this.configuredDevices.get(macAddress);
                                     device.handleResponse((Ethernet_FramePayload_IPv4) payload);
                                 }
                             }
@@ -205,21 +206,20 @@ public class ProfinetChannel {
         this.discoverer = discoverer;
     }
 
-    public void setConfiguration(ProfinetConfiguration configuration) {
-        this.configuration = configuration;
-    }
-
-    public ProfinetConfiguration getConfiguration() {
-        return configuration;
-    }
-
     public Map<MacAddress, PcapHandle> getOpenHandles() {
         return openHandles;
+    }
+
+    public LinkedHashMap<String, ProfinetDevice> getConfiguredDevices() {
+        return configuredDevices;
+    }
+
+    public void setConfiguredDevices(LinkedHashMap<String, ProfinetDevice> configuredDevices) {
+        this.configuredDevices = configuredDevices;
     }
 
     private static MacAddress toPlc4xMacAddress(org.pcap4j.util.MacAddress pcap4jMacAddress) {
         byte[] address = pcap4jMacAddress.getAddress();
         return new MacAddress(new byte[]{address[0], address[1], address[2], address[3], address[4], address[5]});
     }
-
 }
